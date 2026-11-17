@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spanish Study Set</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@3.5.17/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson@1.6.27/build/topojson.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datamaps@0.5.9/dist/datamaps.world.min.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--sf:#fff;--tx:#1d2240;--mu:#6b7194;--ac:#4255ff;--acs:#e6e9ff;--ok:#1a9d6b;--oks:#dcf5ea;--no:#d63c4a;--nos:#fde4e6;--bd:#dfe2f0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1226;--sf:#1a1e3a;--tx:#eceefb;--mu:#9aa0c6;--ac:#8c9bff;--acs:#262c5c;--ok:#4fd1a0;--oks:#14382d;--no:#ff8a95;--nos:#41202a;--bd:#2d3360}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1226;--sf:#1a1e3a;--tx:#eceefb;--mu:#9aa0c6;--ac:#8c9bff;--acs:#262c5c;--ok:#4fd1a0;--oks:#14382d;--no:#ff8a95;--nos:#41202a;--bd:#2d3360}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:4px 0 12px}
+.tabs,.chips{display:flex;gap:8px;flex-wrap:wrap}
+.tabs{margin-bottom:12px}
+button{font:inherit;color:inherit;cursor:pointer}
+.tab{flex:1;padding:10px;border:2px solid var(--bd);background:var(--sf);border-radius:10px;font-weight:600}
+.tab.on{border-color:var(--ac);background:var(--acs);color:var(--ac)}
+.chip{padding:6px 12px;border:1px solid var(--bd);background:var(--sf);border-radius:999px;font-size:.85rem}
+.chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+@media (prefers-color-scheme:dark){.chip.on{color:#0f1226}}
+.bar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:12px 0;color:var(--mu);font-size:.9rem;flex-wrap:wrap}
+.btn{padding:9px 16px;border:1px solid var(--bd);background:var(--sf);border-radius:10px;font-weight:600}
+.btn.pr{background:var(--ac);color:#fff;border-color:var(--ac)}
+@media (prefers-color-scheme:dark){.btn.pr{color:#0f1226}}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:16px;min-height:240px;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:1.6rem;font-weight:600;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.06);user-select:none}
+.card small{display:block;font-size:.75rem;color:var(--mu);font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em}
+.nav{display:flex;justify-content:center;gap:10px;margin-top:14px}
+.q{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:22px;font-size:1.35rem;font-weight:600;margin-bottom:12px;text-align:center}
+.opts{display:grid;gap:10px}
+.opt{padding:14px;border:2px solid var(--bd);background:var(--sf);border-radius:12px;text-align:left}
+.opt.ok{border-color:var(--ok);background:var(--oks)}.opt.no{border-color:var(--no);background:var(--nos)}
+input[type=text]{width:100%;padding:14px;font:inherit;font-size:1.1rem;border:2px solid var(--bd);border-radius:12px;background:var(--sf);color:var(--tx)}
+.fb{margin-top:10px;padding:12px;border-radius:10px;font-weight:600}.fb.ok{background:var(--oks);color:var(--ok)}.fb.no{background:var(--nos);color:var(--no)}
+.res{text-align:center;padding:24px;background:var(--sf);border:1px solid var(--bd);border-radius:16px}
+.res b{font-size:2.2rem;display:block}
+ul.miss{text-align:left;padding-left:18px;color:var(--mu)}
+.sw{display:flex;gap:8px;align-items:center}.tab{flex:1 1 28%;padding:9px 4px;font-size:.9rem}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.tile{padding:14px 6px;min-height:64px;border:2px solid var(--bd);background:var(--sf);border-radius:10px;font-weight:600;font-size:.9rem}.tile.sel{border-color:var(--ac);background:var(--acs)}.tile.gone{visibility:hidden}.tile.bad{border-color:var(--no);background:var(--nos)}.bg,.gb{display:grid;gap:3px;max-width:360px;margin:0 auto 12px}.bg{grid-template-columns:repeat(8,1fr)}.bg i{aspect-ratio:1;background:var(--bd);border-radius:4px;cursor:pointer}.bg i.f{background:var(--ac)}.pv{display:grid;gap:3px;justify-content:center;margin:8px 0}.pv i{width:24px;height:24px;background:var(--ac);border-radius:4px}.pv i.e{background:transparent}.gb{grid-template-columns:repeat(4,1fr);gap:6px;max-width:320px}.gb i{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-style:normal;background:var(--bd);color:#fff;font-size:1.3rem}.mapsvg{width:100%;max-height:420px;background:var(--sf);border:1px solid var(--bd);border-radius:12px}.mapsvg polygon{stroke:var(--tx);stroke-width:.4;fill:var(--acs);cursor:pointer}.mapsvg polygon.g{fill:var(--bd);cursor:default}.mapsvg polygon.hl{fill:var(--ac)}.mapsvg polygon.ok{fill:var(--ok)}.mapsvg polygon.no{fill:var(--no)}.mapsvg text{font-size:3.2px;fill:var(--tx);text-anchor:middle;pointer-events:none;font-weight:700}.mu{color:var(--mu);font-size:.85rem;text-align:center}
+h1{background:linear-gradient(90deg,var(--ac),#ff5c8a,#ffb703,var(--ac));background-size:300%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+.tab,.chip,.btn,.opt,.tile{transition:transform .15s,background .2s,border-color .2s,box-shadow .2s}.tab:hover,.chip:hover,.btn:hover{transform:translateY(-2px)}.opt:hover,.tile:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(66,85,255,.2)}button:active{transform:scale(.95)!important}.tab.on{box-shadow:0 4px 14px rgba(66,85,255,.3)}
+.pb i{transition:width .4s cubic-bezier(.4,1.4,.6,1)}.card{animation:flipIn .4s ease-out;transition:box-shadow .2s}.card:hover{box-shadow:0 8px 28px rgba(66,85,255,.25)}
+.q{animation:slideUp .35s both}.opt{animation:slideUp .35s both}.opt:nth-child(2){animation-delay:.05s}.opt:nth-child(3){animation-delay:.1s}.opt:nth-child(4){animation-delay:.15s}.opt.ok{animation:pop .45s;box-shadow:0 0 18px var(--ok)}.opt.no{animation:shake .4s}.fb{animation:slideUp .3s both}.res{animation:pop .5s}
+.tile.sel{animation:pop .25s;transform:scale(1.06)}.tile.gone{visibility:visible;animation:vanish .4s forwards;pointer-events:none}.tile.bad{animation:shake .4s}
+.bg i{transition:background .2s}.bg i:hover{background:var(--acs)}.bg i.f{box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}.bg i.n{animation:pop .35s}.bg i.pr{background:var(--acs);outline:2px dashed var(--ac)}.bg i.bm2{animation:boom .32s forwards}.pv i{animation:pop .4s both}
+.gm{transition:transform .15s}.gm:hover{transform:scale(1.1)}.gm.boom{animation:boom .26s forwards}.gm.drop{animation:drop calc(.1s + var(--fd)*.08s) cubic-bezier(.55,0,.9,.55)}.gm.sl{animation:pulse .6s infinite}
+.mapsvg polygon{transition:fill .3s,opacity .2s;transform-box:fill-box;transform-origin:center}.mapsvg polygon:not(.g):hover{opacity:.65}.mapsvg polygon.ok{animation:pop .6s;filter:drop-shadow(0 0 2px var(--ok))}.mapsvg polygon.no{animation:shake .4s}.mapsvg polygon.hl{animation:pulse 1s infinite}.mapsvg text{animation:slideUp .4s both}
+.mapsvg path{stroke:var(--tx);stroke-width:.25;stroke-linejoin:round;fill:var(--acs);cursor:pointer;transition:fill .3s,opacity .2s;transform-box:fill-box;transform-origin:center}.mapsvg path.g{fill:var(--bd);cursor:default}.mapsvg path:not(.g):hover{opacity:.65}.mapsvg path.hl{fill:var(--ac);animation:pulse 1s infinite}.mapsvg path.ok{fill:var(--ok);animation:pop .6s}.mapsvg path.no{fill:var(--no);animation:shake .4s}.mapsvg text{paint-order:stroke;stroke:var(--sf);stroke-width:.8px}
+.pt{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:99;animation:fly .8s ease-out forwards}.pt.cf{width:9px;height:14px;animation:fall 1.8s ease-in forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(360deg) scale(.2);opacity:0}}@keyframes fall{to{transform:translate(var(--dx),var(--dy)) rotate(720deg);opacity:0}}
+@keyframes shine{to{background-position:300% 0}}@keyframes flipIn{from{transform:perspective(700px) rotateY(90deg);opacity:.2}to{transform:perspective(700px) rotateY(0);opacity:1}}
+@keyframes slideUp{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes vanish{to{transform:scale(0) rotate(30deg);opacity:0}}@keyframes boom{50%{transform:scale(1.35);filter:brightness(1.8)}to{transform:scale(0);opacity:0}}
+@keyframes drop{from{transform:translateY(calc(var(--fd)*-108%))}to{transform:none}}@keyframes pulse{50%{transform:scale(1.1);filter:brightness(1.25)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}}
+.pb{height:6px;background:var(--bd);border-radius:3px;overflow:hidden;margin-bottom:12px}.pb i{display:block;height:100%;background:var(--ac)}
+</style></head><body><main>
+<h1>📚 Spanish Study Set</h1>
+<div class="tabs" id="tabs"></div>
+<div class="chips" id="chips"></div>
+<div class="bar"><span id="count"></span>
+<label class="sw"><input type="checkbox" id="flip"> Spanish first</label></div>
+<div id="app"></div>
+</main>
+<script>
+const RAW=`Good night / Good evening	Buenas noches
+Good afternoon	Buenas tardes
+Good morning	Buenos días
+Hello! / Hi!	¡Hola!
+Please	Por favor
+Thank you (very much)	(Muchas) gracias
+You're welcome	De nada
+What's your name? (informal)	¿Cómo te llamas (tú)?
+What's your name? (formal)	¿Cómo se llama (Ud.)?
+My name is…	Me llamo… / Mi nombre es…
+Nice to meet you!	Mucho gusto
+Likewise	Igualmente
+Enchanted / delighted	Encantado/a
+The pleasure is mine	El gusto es mío
+Mister / Sir (Mr.)	Señor (Sr.)
+Ma'am (Mrs.)	Señora (Sra.)
+Miss	Señorita (Srta.)
+How are you? (informal)	¿Cómo estás (tú)?
+How are you? (formal)	¿Cómo está Ud.?
+What's happening?	¿Qué pasa?
+What's up?	¿Qué tal?
+What's new?	¿Qué hay de nuevo?
+And you? (informal)	¿Y tú?
+And you? (formal)	¿Y usted (Ud.)?
+I'm (very) fine/well	Estoy (muy) bien
+I'm okay	Estoy regular
+I am so-so	Estoy así así
+I'm okay (more or less)	Estoy más o menos
+I'm (really) bad	Estoy (muy) mal
+I'm sorry	Lo siento
+Bye	¡Adiós!
+See you later	Hasta luego / Hasta la vista
+See you tomorrow	Hasta mañana
+See you soon	Hasta pronto
+See ya!	¡Nos vemos!
+Have a good day	Pase(n) un buen día
+Silence/Quiet, please!	¡Silencio, por favor!
+Open the book to page 10	Abran el libro a la página diez.
+Attention! Close the book	¡Atención! Cierren el libro.
+Repeat, please	Repitan, por favor:
+Stand up, please	Levántense, por favor.
+Sit down, please	Siéntense, por favor.
+Take out a piece of paper	Saquen una pieza de papel.
+Write the numbers	Escriban los números.
+Pass me the papers, please	Pásenme los papeles, por favor.
+Bye Mrs. Newman. Have a good day too!	Adiós Sra. Newman. Pase un buen día también :)
+Bless you / Cheers! (health)	¡Salud!
+Excuse me	Con permiso
+Really?	¿De veras?
+What page are we on?	¿En qué página estamos?
+Slower, please	Más despacio, por favor.
+I don't understand	No entiendo / No comprendo
+I don't know	No sé
+I have a question	Tengo una pregunta
+How do you say ___ in Spanish?	¿Cómo se dice ___ en español?
+What does ___ mean (in English)? (significa)	¿Qué significa ___ (la pared)? (en inglés)
+What does ___ mean (in English)? (quiere decir)	¿Qué quiere decir ___ (la goma)? (en inglés)
+A (how to say it)	ah
+B	bay
+C	say
+Ch	chey
+D	day
+E	“A”
+F	efay
+G	hey
+H	ah-chey
+I	“E”
+J	hota
+K	caw
+L	“L.A.” (say fast)
+LL	“A”-yay
+M	“M.A.” (say fast)
+N	“N.A.” (say fast)
+Ñ (tilde only goes over N)	“N”-yay (nasally)
+O	“O”
+P	pay
+Q	cooo
+R	air
+RR	airrr-“A”
+S	essay
+T	tay
+U	ewww
+V	bay
+W	doble bay doble ewww
+X	“A”-kis
+Y	“E”-griega
+Z	zeta
+How do you spell ___?	¿Cómo se escribe ___?
+You spell it ___	Se escribe ----
+Spelling example: ¿Cómo se escribe “España”?	Se escribe “A”, essay, pay, ah, n-yay, ah
+Vowel sounds: A / E / I / O / U	ah / “a” / “e” / “o” / eww
+The letter H in Spanish	Silent
+The letter J sounds like…	an English “h”
+G is hard before a/o/u (gato, goya) and soft before e/i (gente, gigante)	Hard or soft G depending on the following vowel
+The only 3 consonants that double up in Spanish	C, L, R (like CLR the cleaning product)
+0	cero
+1	uno
+1st	primero
+2	dos
+3	tres
+4	cuatro
+5	cinco
+6	seis
+7	siete
+8	ocho
+9	nueve
+10	diez
+11	once
+12	doce
+13	trece
+14	catorce
+15	quince
+16	dieciséis (diez y seis)
+17	diecisiete (diez y siete)
+20	veinte
+21	veintiuno (veinte y uno)
+22	veintidós (veinte y dos)
+23	veintitrés (veinte y tres)
+26	veintiséis (veinte y seis)
+30	treinta
+31	treinta y uno (no “i” way)
+39	treinta y nueve
+Date formula (the ONLY way to say a date)	el + # + de + mes
+What's the date today?	¿Qué fecha es hoy?
+What's the date tomorrow?	¿Qué fecha es mañana?
+Today is January 1st	Hoy es el primero de enero.
+Tomorrow is Sept. 1st	Mañana es el primero de septiembre.
+When's your birthday?	¿Cuándo es tu cumpleaños?
+My birthday is Sept. 16th	Mi cumpleaños es el dieciséis de septiembre.
+How old are you?	¿Cuántos años tienes? / ¿Cuántos años tiene?
+I'm 13 years old	Tengo trece años.
+Monday	lunes
+Tuesday	martes
+Wednesday	miércoles
+Thursday	jueves
+Friday	viernes
+Saturday	sábado
+Sunday	domingo
+Weekend	el fin de semana
+January	enero
+February	febrero
+March	marzo
+April	abril
+May	mayo
+June	junio
+July	julio
+August	agosto
+September	septiembre
+October	octubre
+November	noviembre
+December	diciembre
+Spring	la primavera
+Summer	el verano
+Winter	el invierno
+Fall (Autumn)	el otoño
+What is the date today? (days & dates)	¿Qué (cuál) es la fecha hoy?
+Today is Aug. 24th	Hoy es el 24 de agosto.
+What day is it (today)?	¿Qué (cuál) día es (hoy)?
+Today is Monday	Hoy es lunes.
+What day is it tomorrow?	¿Qué (cuál) día es mañana?
+Tomorrow is Tuesday	Mañana es martes.
+What is your favorite season?	¿Qué (cuál) es tu estación favorita?
+My favorite season is summer	Mi estación favorita es el verano.
+What are the 3 months of winter?	¿Qué son los 3 meses del invierno?
+The 3 months of winter are Dec., Jan. & Feb.	Los 3 meses del invierno son diciembre, enero y febrero.
+The 3 months of spring are March, April & May	Los 3 meses de la primavera son marzo, abril y mayo.
+The 3 months of summer are June, July & Aug.	Los 3 meses del verano son junio, julio y agosto.
+The 3 months of fall are Sep., Oct. & Nov.	Los 3 meses del otoño son septiembre, octubre y noviembre.
+Yesterday was…	Ayer fue…
+Art	el arte
+Spanish	el español
+Geography	la geografía
+History	la historia
+Math (always plural)	las matemáticas
+Music	la música
+Science (always plural)	las ciencias
+Environmental Science	las ciencias ambientales
+Photography	la fotografía
+Art history	la historia del arte
+PE	la educación física
+Literature	la literatura
+Italian (all languages are masculine)	el italiano
+English	el inglés
+French	el francés
+German	el alemán
+Chinese	el chino
+Japanese	el japonés
+Korean	el coreano
+Hindi	el hindú
+Portuguese	el portugués
+I study ___	(Yo) estudio ___
+Do you (informal) study geography?	¿Estudias (tú) la geografía?
+I study Spanish. I like Spanish class.	(Yo) estudio el español. Me gusta la clase de español.
+Red	rojo, roja, rojos, rojas
+Purple	morado, morada, morados, moradas
+Yellow	amarillo, amarilla, amarillos, amarillas
+Orange	anaranjado, -a, -os, -as
+Brown (1)	café, cafés
+Brown (2)	marrón, marrones
+Green	verde, verdes
+White	blanco, -a, -os, -as
+Grey	gris, grises
+Pink (1)	rosado, -a, -os, -as
+Pink (2)	rosa, rosas
+Black	negro, negra, negros, negras
+Blue	azul, azules
+Violet	violeta
+Teal	verde azulado
+Turquoise	turquesa
+Light + color	color + claro, -a, -os, -as
+Dark + color	color + oscuro, -a, -os, -as
+What is your favorite color?	¿Qué es tu color favorito?
+My favorite color is blue	Mi color favorito es azul.
+What color is a table?	¿De qué color es una mesa?
+What color is the elephant?	¿De qué color es el elefante?
+The elephant is grey	El elefante es gris.
+The red pen	La pluma roja.
+The red pens	Las plumas rojas.
+The dark red pen	La pluma roja oscura.
+The dark red pens	Las plumas rojas oscuras.
+the book	el libro
+the window	la ventana
+the trashcan	la papelera
+the pencil sharpener (sing/pl)	el sacapuntas / los sacapuntas
+the eraser (pencil type)	la goma
+the eraser (whiteboard type)	el borrador
+the desk (student)	el pupitre
+the desk (teacher)	el escritorio
+the crayon(s)	el crayón / los crayones
+the glue	el pegamento
+the ruler	la regla
+the pencil(s)	el lápiz / los lápices
+the clock	el reloj
+the map	el mapa
+the calculator	la calculadora
+the pen	el bolígrafo (el boli) / la pluma
+the flag	la bandera
+the chair	la silla
+the 3-ring binder	la carpeta de argollas / las carpetas de argollas
+the (spiral) notebook	el cuaderno
+the folder	la carpeta
+the door	la puerta
+the paper	el papel
+the student (boy)	el estudiante / el alumno
+the student (girl)	la estudiante / la alumna
+the teacher (male)	el profesor / el maestro
+the teacher (female)	la profesora / la maestra
+the backpack	la mochila
+the computer / laptop	la computadora / la computadora portátil
+the whiteboard	la tabla blanca
+the chalkboard	la pizarra
+the stapler	la grapadora
+the staples	las grapas
+the highlighter (marker pen)	el resaltador
+the scissors	las tijeras
+the table	la mesa
+the dictionary	el diccionario
+the colored pencils	los lápices de colores
+the chalk	la tiza
+the homework	la tarea
+the bookcase	el estante
+there is / there are	hay
+Is there? / Are there?	¿Hay?
+It's (it is)	es
+They're (they are)	son
+Definite articles (the): masc. sing / masc. pl / fem. sing / fem. pl	el / los / la / las
+Indefinite articles (a, an, some): masc. sing / masc. pl / fem. sing / fem. pl	un / unos / una / unas
+How many? (masc. / fem.) + plural noun	¿Cuántos? / ¿Cuántas?
+How much? (masc. / fem.) + singular noun	¿Cuánto? / ¿Cuánta?
+Which form do you NEVER use with a noun: uno, un, or una?	uno (only un or una)
+What happens to the article right after a question word or a number?	It gets “kicked out”
+How many chairs are there?	¿Cuántas sillas hay?
+There are 23 chairs	Hay 23 sillas.
+How much paper is there?	¿Cuánto papel hay?
+There is a lot of paper	Hay mucho papel.
+How many clocks are there?	¿Cuántos relojes hay?
+There is one clock	Hay un reloj.
+How many flags are there?	¿Cuántas banderas hay?
+There is one flag	Hay una bandera.
+How many walls are there?	¿Cuántas paredes hay?
+There are 4 walls	Hay cuatro paredes.
+How much water is there?	¿Cuánta agua hay?
+There is a lot of water	Hay mucha agua.
+Capital of: Los Estados Unidos	Washington D.C.
+Capital of: México	La Ciudad de México (México D.F.)
+Capital of: Guatemala	La Ciudad de Guatemala
+Capital of: El Salvador	San Salvador
+Capital of: Honduras	Tegucigalpa
+Capital of: Nicaragua	Managua
+Capital of: Costa Rica	San José
+Capital of: Panamá	La Ciudad de Panamá
+Capital of: Cuba	La Habana
+Capital of: La República Dominicana	Santo Domingo
+Capital of: Puerto Rico	San Juan
+Capital of: Colombia	Bogotá
+Capital of: Venezuela	Caracas
+Capital of: Ecuador	Quito
+Capital of: Perú	Lima
+Capital of: Chile	Santiago
+Capital of: Argentina	Buenos Aires
+Capital of: Uruguay	Montevideo
+Capital of: Paraguay	Asunción
+Capital of: Bolivia	La Paz y Sucre
+Capital of: España	Madrid
+Capital of: Guinea Ecuatorial	Malabo
+Continent: Los Estados Unidos, México	América del Norte
+Continent: Guatemala, El Salvador, Honduras, Nicaragua, Costa Rica, Panamá	América Central
+Region: Cuba, La República Dominicana, Puerto Rico (the islands)	El Caribe / Las Antillas
+Continent: Colombia, Venezuela, Ecuador, Perú, Chile, Argentina, Uruguay, Paraguay, Bolivia	América del Sur / Sudamérica
+Continent: España	Europa
+Continent: Guinea Ecuatorial	África
+Pacific Ocean	el océano Pacífico
+Caribbean Sea	el mar Caribe
+Atlantic Ocean	el océano Atlántico
+Gulf of Mexico / Gulf of America	el golfo de México / América
+Country with capital: Washington D.C.	Los Estados Unidos
+Country with capital: La Ciudad de México	México
+Country with capital: La Ciudad de Guatemala	Guatemala
+Country with capital: San Salvador	El Salvador
+Country with capital: Tegucigalpa	Honduras
+Country with capital: Managua	Nicaragua
+Country with capital: San José	Costa Rica
+Country with capital: La Ciudad de Panamá	Panamá
+Country with capital: La Habana	Cuba
+Country with capital: Santo Domingo	La República Dominicana
+Country with capital: San Juan	Puerto Rico
+Country with capital: Bogotá	Colombia
+Country with capital: Caracas	Venezuela
+Country with capital: Quito	Ecuador
+Country with capital: Lima	Perú
+Country with capital: Santiago	Chile
+Country with capital: Buenos Aires	Argentina
+Country with capital: Montevideo	Uruguay
+Country with capital: Asunción	Paraguay
+Country with capital: La Paz / Sucre	Bolivia
+Country with capital: Madrid	España
+Country with capital: Malabo	Guinea Ecuatorial
+`;
+const CATS=["Greetings & goodbyes","Class commands","Useful expressions","Alphabet","Numbers & dates","Days, months, seasons","School subjects","Colors","Class objects","Geography"];
+const MARK=["Good night / Good evening","Silence/Quiet, please!","Bless you / Cheers! (health)","A (how to say it)","0","Monday","Art","Red","the book","Capital of: Los Estados Unidos"];
+let all=[],ci=-1;
+RAW.trim().split("\n").forEach(l=>{const [t,d]=l.split("\t");const k=MARK.indexOf(t);if(k>=0&&!(t==="0"&&all.length<100)&&!(t==="Art"&&all.length<200)&&!(t==="Red"&&all.length<200))ci=k;else if(k>=0&&ci<k)ci=k;all.push({t,d,c:Math.max(ci,0)})});
+let sel=new Set(CATS.map((_,i)=>i)),mode="cards",deck=[],i=0,flipped=false,st={};
+const $=s=>document.querySelector(s);
+const sh=a=>{a=a.slice();for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[a[j],a[k]]=[a[k],a[j]]}return a};
+const sp=()=>$("#flip").checked;
+const front=c=>sp()?c.d:c.t, back=c=>sp()?c.t:c.d;
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ñ]/g," ").replace(/\s+/g," ").trim();
+function pool(){return all.filter(c=>sel.has(c.c))}
+function build(){deck=sh(pool());i=0;flipped=false;st={n:0,ok:0,miss:[],ans:false};$("#count").textContent=deck.length+" cards";render()}
+function drawTabs(){$("#tabs").innerHTML=[["cards","Flashcards"],["quiz","Multiple choice"],["write","Write"],["test","Test"],["match","Match"],["inv","Invaders"],["blocks","Blocks"],["gems","Gems"],["map","🗺️ Map"]].map(([k,n])=>`<button class="tab ${mode===k?"on":""}" data-m="${k}">${n}</button>`).join("");
+$("#chips").innerHTML=CATS.map((n,k)=>`<button class="chip ${sel.has(k)?"on":""}" data-c="${k}">${n}</button>`).join("")}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-m],[data-c]");if(!t)return;
+if(t.dataset.m){mode=t.dataset.m}else{const k=+t.dataset.c;sel.has(k)?sel.delete(k):sel.add(k);if(!sel.size)sel.add(k)}
+drawTabs();build()});
+$("#flip").addEventListener("change",build);
+function render(){const a=$("#app");cleanup();cleanup=()=>{};$("#chips").style.display=mode==="map"?"none":"";if(!deck.length){a.innerHTML="Pick a deck.";return}
+if(mode==="cards")cards(a);else if(mode==="quiz")quiz(a);else if(G[mode])G[mode](a);else write(a)}
+function burst(el,n=14){const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;for(let k=0;k<n;k++){const p=document.createElement("i");p.className="pt";const an=Math.random()*6.283,d=40+Math.random()*70;p.style.cssText=`left:${cx}px;top:${cy}px;background:hsl(${Math.random()*360},85%,60%);--dx:${Math.cos(an)*d}px;--dy:${Math.sin(an)*d}px`;document.body.appendChild(p);setTimeout(()=>p.remove(),900)}}
+function confetti(){for(let k=0;k<70;k++){const p=document.createElement("i");p.className="pt cf";p.style.cssText=`left:${Math.random()*100}vw;top:-14px;background:hsl(${Math.random()*360},85%,60%);--dx:${(Math.random()-.5)*220}px;--dy:${70+Math.random()*40}vh;animation-delay:${Math.random()*.5}s`;document.body.appendChild(p);setTimeout(()=>p.remove(),2500)}}
+let GEM={};let cleanup=()=>{};const G={test:testM,match:matchG,inv:invG,blocks:blockB,gems:gemM,map:mapM};
+function mcq(el,c,cb){let o=sh(pool().filter(x=>x!==c&&norm(back(x))!==norm(back(c)))).slice(0,3);if(o.length<3)o=sh(all.filter(x=>norm(back(x))!==norm(back(c)))).slice(0,3);o=sh([c,...o]);el.innerHTML=`<div class="q">${front(c)}</div><div class="opts">${o.map(x=>`<button class="opt">${back(x)}</button>`).join("")}</div>`;let d=0;const bs=[...el.querySelectorAll(".opt")];bs.forEach((b,k)=>b.onclick=()=>{if(d)return;d=1;const r=norm(back(o[k]))===norm(back(c));b.classList.add(r?"ok":"no");if(r)burst(b);if(!r)bs.forEach((x,j)=>{if(norm(back(o[j]))===norm(back(c)))x.classList.add("ok")});setTimeout(()=>cb(r),r?350:1100)})}
+/* TEST: no feedback until the end */
+function testM(a){const T=st.T||(st.T={qs:deck.slice(0,20),i:0,r:[]});if(T.i>=T.qs.length){const ok=T.r.filter(x=>x.ok).length;if(ok/T.qs.length>=.8)setTimeout(confetti,200);a.innerHTML=`<div class="res"><b>${ok} / ${T.qs.length}</b>${Math.round(ok/T.qs.length*100)}%<ul class="miss">${T.r.map(x=>`<li>${x.ok?"✓":"✗"} ${front(x.c)} — <b>${back(x.c)}</b>${x.ok?"":" (you: "+(x.a||"blank")+")"}</li>`).join("")}</ul><button class="btn pr" id="again">New test</button></div>`;$("#again").onclick=build;return}
+const c=T.qs[T.i],mc=T.i%2===0;const rec=(v,ok)=>{T.r.push({c,ok,a:v});T.i++;testM(a)};
+a.innerHTML=`<div class="pb"><i style="width:${T.i/T.qs.length*100}%"></i></div><p class="mu">Test · question ${T.i+1} of ${T.qs.length} · no feedback until the end</p><div class="q">${front(c)}</div>`+(mc?"<div class='opts' id='ot'></div>":"<input type='text' id='in' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='Type the answer…'><div class='nav'><button class='btn pr' id='ck'>Next</button></div>");
+if(mc){let o=sh(pool().filter(x=>x!==c&&norm(back(x))!==norm(back(c)))).slice(0,3);if(o.length<3)o=sh(all.filter(x=>norm(back(x))!==norm(back(c)))).slice(0,3);o=sh([c,...o]);$("#ot").innerHTML=o.map(x=>`<button class="opt">${back(x)}</button>`).join("");[...document.querySelectorAll("#ot .opt")].forEach((b,k)=>b.onclick=()=>rec(back(o[k]),norm(back(o[k]))===norm(back(c))))}
+else{const inp=$("#in");inp.focus();const go=()=>{const v=norm(inp.value),ans=back(c);const vs=[ans,...ans.split(/\s*(?:\/|,|\(|\))\s*/)].map(norm).filter(Boolean);rec(inp.value.trim(),!!v&&vs.includes(v))};$("#ck").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter")go()}}}
+/* MATCH */
+function matchG(a){const p=deck.slice(0,6);if(p.length<2){a.textContent="Pick more cards";return}let t=sh(p.flatMap(c=>[{c,s:0},{c,s:1}])),sel=null,left=p.length;const t0=Date.now();
+a.innerHTML=`<div class="bar"><b id="tm">0.0s</b><button class="btn" id="nw">New round</button></div><div class="grid">${t.map((x,k)=>`<button class="tile" data-k="${k}">${x.s?x.c.d:x.c.t}</button>`).join("")}</div>`;
+const tm=setInterval(()=>{$("#tm").textContent=((Date.now()-t0)/1000).toFixed(1)+"s"},100);cleanup=()=>clearInterval(tm);$("#nw").onclick=build;
+a.querySelectorAll(".tile").forEach((b,k)=>b.onclick=()=>{if(b.classList.contains("gone"))return;if(!sel){sel=b;b.classList.add("sel");return}if(sel===b){b.classList.remove("sel");sel=null;return}const k0=+sel.dataset.k;if(t[k0].c===t[k].c&&t[k0].s!==t[k].s){burst(sel,10);burst(b,10);sel.classList.add("gone");b.classList.add("gone");sel=null;if(!--left){clearInterval(tm);confetti();setTimeout(()=>{if(mode==="match"){deck=deck.slice(6).concat(deck.slice(0,6));render()}},1500);$("#tm").textContent="🎉 Done in "+((Date.now()-t0)/1000).toFixed(1)+"s"}}else{const s=sel;s.classList.remove("sel");s.classList.add("bad");b.classList.add("bad");sel=null;setTimeout(()=>{s.classList.remove("bad");b.classList.remove("bad")},500)}})}
+/* SPACE INVADERS */
+function invG(a){let L=3,S=0,c,inv=[],b=null,sx=240,raf,end=0;const W=480,H=500;
+a.innerHTML=`<div class="bar"><b id="sc"></b></div><div class="q" id="iq"></div><canvas id="cv" width="480" height="500" style="width:100%;background:#0b0e24;border-radius:12px;touch-action:none"></canvas><p class="mu">Move with mouse/finger or ←/→ · shoot with tap or space. Shoot the invader with the right answer!</p>`;
+const cv=$("#cv"),x=cv.getContext("2d"),fx=[],stars=Array.from({length:60},()=>({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.8+.4}));const boom=(px,py,col)=>{for(let k=0;k<24;k++){const an=Math.random()*6.28,sp=1+Math.random()*4.5;fx.push({x:px,y:py,vx:Math.cos(an)*sp,vy:Math.sin(an)*sp,l:1,c:col})}},hurt=()=>cv.animate([{transform:"translateX(-10px)"},{transform:"translateX(10px)"},{transform:"translateX(-6px)"},{transform:"none"}],{duration:300});
+function nr(){c=deck[Math.floor(Math.random()*deck.length)];let o=sh(pool().filter(y=>y!==c&&norm(back(y))!==norm(back(c)))).slice(0,3);o=sh([c,...o]);inv=o.map((y,k)=>({y,x:60+k*120,yy:40,ok:y===c}));$("#iq").textContent=front(c)}
+const fire=()=>{if(!b&&!end)b={x:sx,y:H-40}};
+const kd=e=>{if(e.key==="ArrowLeft")sx=Math.max(20,sx-24);if(e.key==="ArrowRight")sx=Math.min(W-20,sx+24);if(e.key===" "){e.preventDefault();fire()}};document.addEventListener("keydown",kd);
+const pos=e=>{const r=cv.getBoundingClientRect();sx=Math.min(W-20,Math.max(20,(e.clientX-r.left)/r.width*W))};cv.onpointermove=pos;cv.onpointerdown=e=>{pos(e);fire()};
+cleanup=()=>{cancelAnimationFrame(raf);document.removeEventListener("keydown",kd)};nr();
+const wrap=t=>{let r;for(let fs=17;fs>=10;fs--){x.font="bold "+fs+"px system-ui";const L=[];let cur="";t.split(" ").forEach(wd=>{const tr=cur?cur+" "+wd:wd;if(cur&&x.measureText(tr).width>100){L.push(cur);cur=wd}else cur=tr});L.push(cur);r={L,fs};if(L.length<=3&&L.every(l=>x.measureText(l).width<=104))break}return r};
+function loop(){x.clearRect(0,0,W,H);x.shadowBlur=0;x.fillStyle="#fff";stars.forEach(s=>{s.y+=s.s*.6;if(s.y>H)s.y=0;x.globalAlpha=.3+s.s/3;x.fillRect(s.x,s.y,s.s,s.s)});for(let k=fx.length-1;k>=0;k--){const p=fx[k];p.x+=p.vx;p.y+=p.vy;p.l-=.03;if(p.l<=0){fx.splice(k,1);continue}x.globalAlpha=p.l;x.fillStyle=p.c;x.fillRect(p.x,p.y,4,4)}x.globalAlpha=1;const v=.35+S/500;
+inv.forEach(i=>{i.yy+=v;const ox=Math.sin(i.yy/18)*7;x.shadowColor="#7c5cff";x.shadowBlur=16;const gr=x.createLinearGradient(0,i.yy-32,0,i.yy+32);gr.addColorStop(0,"#a98bff");gr.addColorStop(1,"#5233d6");x.fillStyle=gr;x.beginPath();x.roundRect(i.x+ox-56,i.yy-32,112,64,14);x.fill();x.shadowBlur=0;x.fillStyle="#fff";x.textAlign="center";const w=wrap(back(i.y));x.font="bold "+w.fs+"px system-ui";w.L.forEach((l,k)=>x.fillText(l,i.x+ox,i.yy+(k-(w.L.length-1)/2)*(w.fs+3)+w.fs*.35))});
+if(b){b.y-=9;x.shadowColor="#ffd84d";x.shadowBlur=14;x.fillStyle="#fff7b0";x.fillRect(b.x-2,b.y,4,16);x.shadowBlur=0;const h=inv.find(i=>Math.abs(b.x-i.x)<56&&Math.abs(b.y-i.yy)<34);if(h){b=null;if(h.ok){S+=10;boom(h.x,h.yy,"#4fd1a0");boom(h.x,h.yy,"#ffd84d");nr()}else{L--;hurt();boom(h.x,h.yy,"#ff5c6c");inv=inv.filter(i=>i!==h)}}else if(b.y<0)b=null}
+const low=inv.find(i=>i.yy>H-50);if(low){if(low.ok){L--;hurt();nr()}else inv=inv.filter(i=>i!==low)}
+x.shadowColor="#4fd1a0";x.shadowBlur=16;x.fillStyle="#4fd1a0";x.beginPath();x.moveTo(sx,H-34);x.lineTo(sx-18,H-8);x.lineTo(sx,H-14);x.lineTo(sx+18,H-8);x.fill();x.shadowColor="#ff9f1c";x.fillStyle="#ff9f1c";x.beginPath();x.moveTo(sx-6,H-12);x.lineTo(sx,H-2+Math.random()*8);x.lineTo(sx+6,H-12);x.fill();x.shadowBlur=0;
+$("#sc").textContent="Score "+S+"   Lives "+"❤️".repeat(Math.max(L,0));
+if(L<=0){end=1;x.fillStyle="rgba(0,0,0,.7)";x.fillRect(0,0,W,H);x.fillStyle="#fff";x.font="bold 28px system-ui";x.fillText("Game over · "+S,W/2,H/2);x.font="16px system-ui";x.fillText("Tap to play again",W/2,H/2+30);cv.onpointerdown=()=>build();return}
+raf=requestAnimationFrame(loop)}loop()}
+/* BLOCKS (block-blast style) */
+function blockG(a){const N=8,SH=[[[1]],[[1,1]],[[1],[1]],[[1,1,1]],[[1],[1],[1]],[[1,1],[1,1]],[[1,1],[1,0]],[[1,1,1],[0,1,0]],[[1,1,1,1]],[[1,0],[1,0],[1,1]]];let g=Array.from({length:N},()=>Array(N).fill(0)),S=0,pc=null,over=0;const nw=new Set();
+const fits=(p,r,c)=>r+p.length<=N&&c+p[0].length<=N&&p.every((row,i)=>row.every((v,j)=>!v||!g[r+i][c+j]));
+const any=p=>{for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(fits(p,r,c))return 1;return 0};
+function draw(){a.innerHTML=`<div class="bar"><b>Score ${S}</b><span>${over?"":pc?"Tap a square to place the piece (top-left corner)":"Answer correctly to earn a piece"}</span></div><div class="bg">${g.map((row,r)=>row.map((v,c)=>`<i class="${v?"f":""}${nw.has(r*N+c)?" n":""}" data-r="${r}" data-c="${c}"></i>`).join("")).join("")}</div><div id="sd"></div>`;const sd=$("#sd");
+if(over)sd.innerHTML=`<div class="res"><b>Game over · ${S}</b><button class="btn pr" id="again">Play again</button></div>`,$("#again").onclick=build;
+else if(pc)sd.innerHTML=`<p class="mu">Your piece:</p><div class="pv" style="grid-template-columns:repeat(${pc[0].length},24px)">${pc.flat().map(v=>`<i class="${v?"":"e"}"></i>`).join("")}</div>`;
+else mcq(sd,deck[Math.floor(Math.random()*deck.length)],r=>{if(r){pc=SH[Math.floor(Math.random()*SH.length)];if(!any(pc))over=1}draw()});
+$(".bg").onclick=e=>{const t=e.target.closest("i");if(!t||!pc)return;const r=+t.dataset.r,c=+t.dataset.c;if(!fits(pc,r,c))return;nw.clear();pc.forEach((row,i)=>row.forEach((v,j)=>{if(v){g[r+i][c+j]=1;nw.add((r+i)*N+c+j);S++}}));const R=g.map((row,i)=>row.every(Boolean)?i:-1).filter(i=>i>=0),C=[...Array(N).keys()].filter(j=>g.every(row=>row[j]));R.forEach(i=>g[i].fill(0));C.forEach(j=>g.forEach(row=>row[j]=0));S+=(R.length+C.length)*10;if(R.length+C.length)confetti();pc=null;draw()}}draw()}
+/* GEMS (2048-style merge; correct answers earn moves) */
+function gemG(a){let g=Array.from({length:4},()=>Array(4).fill(0)),mv=3,S=0;const sp2=()=>{const e=[];g.forEach((r,i)=>r.forEach((v,j)=>!v&&e.push([i,j])));if(e.length){const[i,j]=e[Math.floor(Math.random()*e.length)];g[i][j]=Math.random()<.9?2:4}};sp2();sp2();
+const can=()=>g.some((r,i)=>r.some((v,j)=>!v||(j<3&&v===r[j+1])||(i<3&&v===g[i+1][j])));
+function slide(d){let mo=0,pts=0;for(let r=0;r<4;r++){let ln=[0,1,2,3].map(k=>d<2?g[r][k]:g[k][r]);if(d%2)ln.reverse();const f=ln.filter(Boolean),o=[];for(let k=0;k<f.length;k++){if(f[k]===f[k+1]){o.push(f[k]*2);pts+=f[k]*2;k++}else o.push(f[k])}while(o.length<4)o.push(0);if(d%2)o.reverse();for(let k=0;k<4;k++){const old=d<2?g[r][k]:g[k][r];if(old!==o[k])mo=1;if(d<2)g[r][k]=o[k];else g[k][r]=o[k]}}if(mo){S+=pts;mv--;sp2()}}
+const mvf=d=>{if(mv>0){slide(d);draw()}};const kd=e=>{const k=["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].indexOf(e.key);if(k>=0){e.preventDefault();mvf(k)}};document.addEventListener("keydown",kd);cleanup=()=>document.removeEventListener("keydown",kd);
+function draw(){const dead=!can();a.innerHTML=`<div class="bar"><b>Score ${S}</b><b>Moves left: ${mv}</b></div><div class="gb">${g.flat().map(v=>`<i style="${v?`background:hsl(${(Math.log2(v)*47)%360},65%,45%)`:""}">${v||""}</i>`).join("")}</div><div id="sd"></div>`;const sd=$("#sd");
+if(dead){sd.innerHTML=`<div class="res"><b>Game over · ${S}</b><button class="btn pr" id="again">Play again</button></div>`;$("#again").onclick=build}
+else if(mv>0){sd.innerHTML=`<div class="nav">${["←","→","↑","↓"].map((s,k)=>`<button class="btn" data-d="${k}">${s}</button>`).join("")}</div><p class="mu">Merge matching gems. Use arrow keys or buttons.</p>`;sd.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>mvf(+b.dataset.d))}
+else mcq(sd,deck[Math.floor(Math.random()*deck.length)],r=>{if(r)mv+=3;draw()})}draw()}
+/* BLOCK BLAST: drag 3 pieces; question when all 3 are used */
+function blockB(a){const N=8,SH=[[[1]],[[1,1]],[[1],[1]],[[1,1,1]],[[1],[1],[1]],[[1,1],[1,1]],[[1,1],[1,0]],[[1,1,1],[0,1,0]],[[1,1,1,1]],[[1,0],[1,0],[1,1]],[[1,1,1],[1,1,1]],[[1,1,1],[1,0,0],[1,0,0]]];
+let g=Array.from({length:N},()=>Array(N).fill(0)),S=0,tray=[],over=0,asking=0,alive=1,busy=0,nw=new Set(),lc=new Set();cleanup=()=>{alive=0};
+const rp=()=>SH[Math.floor(Math.random()*SH.length)],newTray=()=>{tray=[rp(),rp(),rp()]};newTray();
+const fits=(p,r,c)=>r>=0&&c>=0&&r+p.length<=N&&c+p[0].length<=N&&p.every((row,i)=>row.every((v,j)=>!v||!g[r+i][c+j]));
+const any=p=>{for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(fits(p,r,c))return 1;return 0},canAny=()=>tray.some(p=>p&&any(p));
+const post=()=>{if(tray.every(p=>!p))asking=1;else if(!canAny())over=1;draw()};
+function draw(){if(!alive)return;a.innerHTML=`<div class="bar"><b>Score ${S}</b><span>${over?"":asking?"Answer to get 3 new pieces":"Drag a piece onto the board"}</span></div><div class="bg" id="bd">${g.map((row,r)=>row.map((v,c)=>{const k=r*N+c;return `<i class="${v?"f":""}${nw.has(k)?" n":""}${lc.has(k)?" bm2":""}"></i>`}).join("")).join("")}</div><div id="sd"></div>`;const sd=$("#sd");
+if(over){sd.innerHTML=`<div class="res"><b>Game over · ${S}</b><button class="btn pr" id="again">Play again</button></div>`;$("#again").onclick=build}
+else if(asking)mcq(sd,deck[Math.floor(Math.random()*deck.length)],r=>{if(r){newTray();asking=0;if(!canAny())over=1}draw()});
+else{sd.innerHTML=`<div style="display:flex;justify-content:space-around;align-items:center;min-height:110px">${tray.map((p,k)=>p?`<div class="pv" data-k="${k}" style="grid-template-columns:repeat(${p[0].length},24px);touch-action:none;cursor:grab;padding:8px">${p.flat().map(v=>`<i class="${v?"":"e"}"></i>`).join("")}</div>`:`<div style="width:60px"></div>`).join("")}</div>`;sd.querySelectorAll(".pv").forEach(el=>el.onpointerdown=e=>drag(e,+el.dataset.k))}}
+function drag(e,k){if(busy)return;e.preventDefault();const p=tray[k],bd=$("#bd"),br=bd.getBoundingClientRect(),cs=br.width/N,w=p[0].length*cs,h=p.length*cs,gh=document.createElement("div");gh.style.cssText=`position:fixed;z-index:100;pointer-events:none;display:grid;gap:3px;grid-template-columns:repeat(${p[0].length},${cs-3}px);opacity:.92;filter:drop-shadow(0 8px 10px rgba(0,0,0,.3))`;gh.innerHTML=p.flat().map(v=>`<i style="height:${cs-3}px;border-radius:5px;background:${v?"var(--ac)":"transparent"}"></i>`).join("");document.body.appendChild(gh);let tg=null;const cells=[...bd.children];
+const mvf=ev=>{const gx=ev.clientX-w/2,gy=ev.clientY-h/2-48;gh.style.left=gx+"px";gh.style.top=gy+"px";const c=Math.round((gx-br.left)/cs),r=Math.round((gy-br.top)/cs);cells.forEach(x=>x.classList.remove("pr"));tg=fits(p,r,c)?[r,c]:null;if(tg)p.forEach((row,i)=>row.forEach((v,j)=>{if(v)cells[(r+i)*N+c+j].classList.add("pr")}))};mvf(e);
+const up=()=>{document.removeEventListener("pointermove",mvf);document.removeEventListener("pointerup",up);document.removeEventListener("pointercancel",up);gh.remove();cells.forEach(x=>x.classList.remove("pr"));if(tg)place(p,k,tg[0],tg[1])};
+document.addEventListener("pointermove",mvf);document.addEventListener("pointerup",up);document.addEventListener("pointercancel",up)}
+function place(p,k,r,c){nw.clear();p.forEach((row,i)=>row.forEach((v,j)=>{if(v){g[r+i][c+j]=1;nw.add((r+i)*N+c+j);S++}}));tray[k]=null;const R=g.map((row,i)=>row.every(Boolean)?i:-1).filter(i=>i>=0),C=[...Array(N).keys()].filter(j=>g.every(row=>row[j]));
+if(!R.length&&!C.length)return post();lc=new Set();R.forEach(i=>{for(let j=0;j<N;j++)lc.add(i*N+j)});C.forEach(j=>{for(let i=0;i<N;i++)lc.add(i*N+j)});busy=1;draw();setTimeout(()=>{if(!alive)return;R.forEach(i=>g[i].fill(0));C.forEach(j=>g.forEach(row=>row[j]=0));S+=(R.length+C.length)*10;lc=new Set();nw.clear();confetti();busy=0;post()},320)}
+draw()}
+/* GEM MERGE: match-3, answer questions to earn moves */
+function gemM(a){const N=7,CL=["#e63946","#f4a261","#e9c216","#2ecc71","#3a86ff","#9b5de5"],SY=["♥","◆","★","●","■","▲"];let g=[],sel=-1,mv=8,S=0,busy=0,alive=1,bm=new Set(),dr=0,lv=3,fl=[];cleanup=()=>{alive=0};
+const rnd=()=>Math.floor(Math.random()*6),sleep=t=>new Promise(r=>setTimeout(r,t)),sw=(i,j)=>{[g[i],g[j]]=[g[j],g[i]]};
+const find=()=>{const m=new Set();for(let r=0;r<N;r++)for(let c=0;c<N;c++){const v=g[r*N+c];if(v<0)continue;if(c<N-2&&g[r*N+c+1]===v&&g[r*N+c+2]===v)[0,1,2].forEach(k=>m.add(r*N+c+k));if(r<N-2&&g[(r+1)*N+c]===v&&g[(r+2)*N+c]===v)[0,1,2].forEach(k=>m.add((r+k)*N+c))}return m};
+const hasMove=()=>{for(let i=0;i<N*N;i++)for(const j of[i+1,i+N]){if(j>=N*N||(j===i+1&&j%N===0))continue;sw(i,j);const f=find().size;sw(i,j);if(f)return 1}return 0};
+const fresh=()=>{do{g=Array.from({length:N*N},rnd);while(find().size)find().forEach(i=>g[i]=rnd())}while(!hasMove())};if(GEM.g&&!GEM.g.includes(-1)){g=GEM.g;mv=GEM.mv;S=GEM.S;lv=GEM.lv}else fresh();
+async function resolve(){busy=1;let combo=1,m;while(alive&&(m=find()).size){S+=m.size*10*combo;combo++;if(combo>3)confetti();bm=m;draw();await sleep(260);bm=new Set();m.forEach(i=>g[i]=-1);draw();await sleep(80);for(let c=0;c<N;c++){const col=[],src=[];for(let r=N-1;r>=0;r--)if(g[r*N+c]>=0){col.push(g[r*N+c]);src.push(r)}let nx=-1;while(col.length<N){col.push(rnd());src.push(nx--)}for(let r=N-1,k=0;r>=0;r--,k++){g[r*N+c]=col[k];fl[r*N+c]=r-src[k]}}dr=1;draw();dr=0;await sleep(380)}
+if(alive&&!hasMove())fresh();busy=0;draw()}
+function pick(i){if(busy||mv<=0)return;if(sel<0){sel=i;return draw()}const d=Math.abs(Math.floor(sel/N)-Math.floor(i/N))+Math.abs(sel%N-i%N);if(d!==1){sel=i===sel?-1:i;return draw()}const j=sel;sel=-1;sw(j,i);if(find().size){mv--;resolve()}else{draw();busy=1;setTimeout(()=>{sw(j,i);busy=0;draw()},300)}}
+function draw(){if(!alive)return;if(lv<=0){GEM={};a.innerHTML=`<div class="res"><b>Game over · ${S}</b><button class="btn pr" id="again">Play again</button></div>`;$("#again").onclick=build;return}if(!g.includes(-1))GEM={g,mv,S,lv,q:GEM.q};a.innerHTML=`<div class="bar"><b>Score ${S}</b><b>${"❤️".repeat(lv)}</b><b>Moves: ${mv}</b></div><div style="display:grid;grid-template-columns:repeat(${N},1fr);gap:4px;max-width:380px;margin:0 auto 12px">${g.map((v,i)=>`<button data-i="${i}" class="gm ${bm.has(i)?"boom":""} ${dr&&fl[i]>0?"drop":""} ${i===sel?"sl":""}" style="--fd:${fl[i]||0};aspect-ratio:1;border:0;border-radius:12px;background:${CL[v]||"transparent"};color:#fff;font-size:1.2rem;cursor:pointer;${i===sel?"outline:3px solid var(--tx);":""}">${SY[v]||""}</button>`).join("")}</div><div id="sd"></div>`;
+a.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>pick(+b.dataset.i));const sd=$("#sd");
+if(mv<=0&&!busy){sd.innerHTML="<p class='mu'>Out of moves! Answer correctly to earn 5 more.</p><div id='mq'></div>";mcq($("#mq"),GEM.q||(GEM.q=deck[Math.floor(Math.random()*deck.length)]),r=>{GEM.q=null;if(r)mv+=5;else lv--;draw()})}
+else sd.innerHTML="<p class='mu'>Tap a gem, then a neighbor to swap. Match 3+ in a row to clear them. Each swap costs 1 move — answer questions to earn more.</p>"}draw()}
+/* MAP MODE (simplified schematic maps) */
+const MAPS0={sa:{vb:"0 0 100 130",c:[["Colombia","Bogotá","22,10 38,8 42,22 36,32 26,36 20,28 18,18",1],["Venezuela","Caracas","38,8 62,8 64,20 52,26 42,22",1],["Ecuador","Quito","14,32 26,36 24,44 14,44",1],["Perú","Lima","14,44 24,44 26,36 36,32 40,46 36,60 24,66 14,52",1],["Bolivia","La Paz y Sucre","36,60 40,46 54,46 56,62 48,70 38,68",1],["Paraguay","Asunción","48,70 56,70 58,80 48,82 44,76",1],["Chile","Santiago","24,66 34,64 36,72 34,90 32,110 30,125 26,110 24,80",1],["Argentina","Buenos Aires","34,64 38,68 48,70 44,76 48,82 58,80 56,92 44,112 36,125 30,125 32,110 34,90 36,72",1],["Uruguay","Montevideo","58,80 66,84 62,92 56,92",1],["Brasil y las Guayanas","","36,32 52,26 64,20 78,24 90,40 84,66 66,84 58,80 56,70 56,62 54,46 40,46",0]]},
+ca:{vb:"0 0 112 100",c:[["México","La Ciudad de México","2,8 30,10 34,22 40,30 36,40 44,48 38,52 30,46 20,50 10,34 4,20",1],["Guatemala","La Ciudad de Guatemala","36,52 44,48 46,56 40,60 34,58",1],["Belice","","44,48 48,46 48,52 46,56",0],["Honduras","Tegucigalpa","46,56 48,52 62,52 64,58 56,62 48,62",1],["El Salvador","San Salvador","40,60 46,56 48,62 46,65 40,63",1],["Nicaragua","Managua","48,62 56,62 64,58 66,72 54,72",1],["Costa Rica","San José","54,72 66,72 70,80 60,80",1],["Panamá","La Ciudad de Panamá","60,80 70,80 86,82 94,88 84,90 72,86 62,84",1],["Cuba","La Habana","44,20 52,18 70,26 80,32 70,32 56,26 46,24",1],["Jamaica","","66,42 76,42 76,47 66,47",0],["Haití","","80,34 88,34 88,44 80,44",0],["La República Dominicana","Santo Domingo","88,34 100,34 100,44 88,44",1],["Puerto Rico","San Juan","103,34 111,34 111,40 103,40",1]]}};
+const SPEC={sa:[["COL","Colombia","Bogotá",1],["VEN","Venezuela","Caracas",1],["ECU","Ecuador","Quito",1],["PER","Perú","Lima",1],["BOL","Bolivia","La Paz y Sucre",1],["PRY","Paraguay","Asunción",1],["CHL","Chile","Santiago",1],["ARG","Argentina","Buenos Aires",1],["URY","Uruguay","Montevideo",1],["BRA","Brasil","",0],["GUY","Guyana","",0],["SUR","Surinam","",0],["PAN","Panamá","",0]],
+ca:[["MEX","México","La Ciudad de México",1],["GTM","Guatemala","La Ciudad de Guatemala",1],["BLZ","Belice","",0],["HND","Honduras","Tegucigalpa",1],["SLV","El Salvador","San Salvador",1],["NIC","Nicaragua","Managua",1],["CRI","Costa Rica","San José",1],["PAN","Panamá","La Ciudad de Panamá",1],["CUB","Cuba","La Habana",1],["JAM","Jamaica","",0],["HTI","Haití","",0],["DOM","La República Dominicana","Santo Domingo",1],["PRI","Puerto Rico","San Juan",1],["USA","Estados Unidos","",0],["COL","Colombia","",0],["VEN","Venezuela","",0],["BHS","Bahamas","",0]]};
+/* real borders from the datamaps world topology; returns null if the libraries didn't load */
+function geo(){try{const T=Datamap.prototype.worldTopo,by={};topojson.feature(T,T.objects.world).features.forEach(f=>by[f.id]=f);const W=100,H=110,out={};
+for(const k of Object.keys(SPEC)){const rows=SPEC[k].filter(r=>by[r[0]]),tg=rows.filter(r=>r[3]);if(tg.length<6)return null;const pr=d3.geo.mercator().scale(1).translate([0,0]),pa=d3.geo.path().projection(pr),b=pa.bounds({type:"FeatureCollection",features:tg.map(r=>by[r[0]])}),s=.92/Math.max((b[1][0]-b[0][0])/W,(b[1][1]-b[0][1])/H);pr.scale(s).translate([(W-s*(b[1][0]+b[0][0]))/2,(H-s*(b[1][1]+b[0][1]))/2]);
+out[k]={vb:`0 0 ${W} ${H}`,c:rows.map(r=>{const f=by[r[0]];return[r[1],r[2],(pa(f)||"").replace(/\d+\.\d+/g,n=>(+n).toFixed(1)),r[3],pa.centroid(f).map(v=>+v.toFixed(1))]})}}
+return out}catch(e){return null}}
+function legacy(){const o={};for(const k in MAPS0)o[k]={vb:MAPS0[k].vb,c:MAPS0[k].c.map(m=>{const p=m[2].split(" ").map(s=>s.split(",").map(Number));return[m[0],m[1],"M"+m[2].replace(/ /g,"L")+"Z",m[3],[p.reduce((s,q)=>s+q[0],0)/p.length,p.reduce((s,q)=>s+q[1],0)/p.length]]})};return o}
+function mapM(a){let reg="sa",task="loc";const GE=geo(),MAPS=GE||legacy();const chip=(k,v,n,on)=>`<button class="chip ${on?"on":""}" data-${k}="${v}">${n}</button>`;
+function menu(){a.innerHTML=`<p class="mu">Region</p><div class="chips">${chip("r","sa","South America",reg==="sa")}${chip("r","ca","Central America & Caribbean",reg==="ca")}</div><p class="mu">What to practice</p><div class="chips">${chip("t","loc","Find the country",task==="loc")}${chip("t","name","Spell the country",task==="name")}${chip("t","cap","Spell the capital",task==="cap")}</div><div class="nav"><button class="btn pr" id="go">Start</button></div><p class="mu">${GE?"":"Simplified schematic map. "}Spelling ignores accents and “La”.</p>`;
+a.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{reg=b.dataset.r;menu()});a.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{task=b.dataset.t;menu()});$("#go").onclick=()=>play()}
+function play(){const M=MAPS[reg].c,qs=sh(M.filter(m=>m[3]));let qi=0,ok=0,res={};
+const svg=(hl,clk)=>`<svg class="mapsvg" viewBox="${MAPS[reg].vb}">${M.map((m,k)=>`<path data-k="${k}" d="${m[2]}" class="${m[3]?"":"g"} ${res[k]||(k===hl?"hl":"")}"/>`).join("")}${M.map((m,k)=>{if(!res[k])return"";const [cx,cy]=m[4];return `<text x="${cx}" y="${cy}">${m[0].replace("La República ","Rep. ")}</text>`}).join("")}</svg>`;
+function show(){if(qi>=qs.length){a.innerHTML=`<div class="res"><b>${ok} / ${qs.length}</b>${svg(-1)}<div class="nav"><button class="btn pr" id="ag">Play again</button><button class="btn" id="mn">Menu</button></div></div>`;$("#ag").onclick=play;$("#mn").onclick=menu;return}
+const m=qs[qi],k=M.indexOf(m);const pr=task==="loc"?"Find: "+m[0]:task==="name"?"What is this country called in Spanish?":"What is the capital of "+m[0]+"?";
+a.innerHTML=`<div class="pb"><i style="width:${qi/qs.length*100}%"></i></div><div class="q">${pr}</div>${svg(task==="loc"?-1:k)}<div id="fb"></div>`+(task==="loc"?"":"<input type='text' id='in' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='Type it in Spanish…' style='margin-top:10px'><div class='nav'><button class='btn pr' id='ck'>Check</button></div>");
+const fin=(r,txt)=>{if(r){ok++;confetti()}res[k]=r?"ok":"no";a.innerHTML=a.innerHTML;a.querySelector(".mapsvg").outerHTML=svg(-1);$("#fb").innerHTML=`<div class="fb ${r?"ok":"no"}">${txt}</div><div class="nav"><button class="btn pr" id="nx">Next</button></div>`;$("#nx").onclick=()=>{qi++;show()}};
+if(task==="loc"){a.querySelectorAll("path").forEach(p=>p.onclick=()=>{const j=+p.dataset.k;if(!M[j][3]||res[k])return;fin(j===k,j===k?"Correct! ✓":"That was "+M[j][0]+". "+m[0]+" is the highlighted country.")})}
+else{const inp=$("#in");inp.focus();const go=()=>{if(res[k])return;const f=task==="name"?m[0]:m[1],v=[f,...f.split(/ y /)];v.push(...v.map(s=>s.replace(/^(la ciudad de|la|el) /i,"")));const r=v.map(norm).includes(norm(inp.value));fin(r,r?"Correct! ✓ "+f:"Answer: "+f)};$("#ck").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter")go()}}}show()}
+menu()}
+function cards(a){const c=deck[i];
+a.innerHTML=`<div class="pb"><i style="width:${(i+1)/deck.length*100}%"></i></div><div class="card" id="cd"><div>${flipped?"<small>"+(sp()?"English":"Español")+"</small>"+back(c):"<small>"+(sp()?"Español":"English")+" · tap to flip</small>"+front(c)}</div></div>
+<div class="nav"><button class="btn" id="pv">←</button><span class="btn" style="cursor:default">${i+1} / ${deck.length}</span><button class="btn pr" id="nx">→</button><button class="btn" id="shf">Shuffle</button></div>`;
+$("#cd").onclick=()=>{flipped=!flipped;cards(a)};
+$("#pv").onclick=()=>{i=(i-1+deck.length)%deck.length;flipped=false;cards(a)};
+$("#nx").onclick=()=>{i=(i+1)%deck.length;flipped=false;cards(a)};
+$("#shf").onclick=build}
+document.addEventListener("keydown",e=>{if(mode!=="cards"||e.target.tagName==="INPUT")return;
+if(e.key==="ArrowRight"){$("#nx")?.click()}else if(e.key==="ArrowLeft"){$("#pv")?.click()}else if(e.key===" "){e.preventDefault();$("#cd")?.click()}});
+function done(a){if(st.n&&st.ok/st.n>=.8)setTimeout(confetti,200);a.innerHTML=`<div class="res"><b>${st.ok} / ${st.n}</b>${Math.round(st.ok/Math.max(st.n,1)*100)}% correct
+${st.miss.length?"<h3>Review these</h3><ul class='miss'>"+st.miss.map(c=>`<li>${c.t} — <b>${c.d}</b></li>`).join("")+"</ul>":"<p>Perfect! 🎉</p>"}
+<button class="btn pr" id="again">Try again</button></div>`;$("#again").onclick=build}
+function quiz(a){if(st.fin)return done(a);if(i>=deck.length){deck=sh(pool());i=0}const c=deck[i];
+let others=sh(pool().filter(x=>x!==c&&norm(back(x))!==norm(back(c)))).slice(0,3);
+if(others.length<3)others=sh(all.filter(x=>x!==c&&norm(back(x))!==norm(back(c)))).slice(0,3);
+const opts=sh([c,...others]);
+a.innerHTML=`<div class="pb"><i style="width:${i/deck.length*100}%"></i></div><div class="q">${front(c)}</div><div class="opts">${opts.map((o,k)=>`<button class="opt" data-k="${k}">${back(o)}</button>`).join("")}</div><div id="fb"></div><div class="nav"><button class="btn" id="fin">Finish</button></div>`;$("#fin").onclick=()=>{st.fin=1;quiz(a)};
+st.ans=false;
+a.querySelectorAll(".opt").forEach((b,k)=>b.onclick=()=>{if(st.ans)return;st.ans=true;st.n++;const right=opts[k]===c||norm(back(opts[k]))===norm(back(c));
+if(right){st.ok++;b.classList.add("ok");burst(b)}else{st.miss.push(c);b.classList.add("no");a.querySelectorAll(".opt").forEach((x,j)=>{if(opts[j]===c)x.classList.add("ok")})}
+setTimeout(()=>{i++;quiz(a)},right?600:1600)})}
+function write(a){if(st.fin)return done(a);if(i>=deck.length){deck=sh(pool());i=0}const c=deck[i];
+a.innerHTML=`<div class="pb"><i style="width:${i/deck.length*100}%"></i></div><div class="q">${front(c)}</div><input type="text" id="in" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the answer…"><div class="nav"><button class="btn pr" id="ck">Check</button><button class="btn" id="sk">Skip</button><button class="btn" id="fin">Finish</button></div><div id="fb"></div>`;
+const inp=$("#in");inp.focus();st.ans=false;$("#fin").onclick=()=>{st.fin=1;write(a)};
+const check=()=>{if(st.ans){i++;return write(a)}
+const v=norm(inp.value),ans=back(c),variants=[ans,...ans.split(/\s*(?:\/|,|\(|\))\s*/)].map(norm).filter(Boolean);
+const right=v&&variants.includes(v);st.ans=true;st.n++;
+if(right)st.ok++;else st.miss.push(c);
+$("#fb").innerHTML=`<div class="fb ${right?"ok":"no"}">${right?"Correct! ✓":"Answer: "+ans}</div>`;
+$("#ck").textContent="Next";
+if(!right&&v&&norm(ans)!==v&&norm(inp.value).replace(/ /g,"")===norm(ans).replace(/ /g,""))$("#fb").innerHTML+=""};
+$("#ck").onclick=check;$("#sk").onclick=()=>{inp.value="";st.ans=false;check()};
+inp.onkeydown=e=>{if(e.key==="Enter")check()}}
+drawTabs();build();
+</script></body></html>
